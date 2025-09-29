@@ -171,27 +171,58 @@
             z-index: 100;
         }
         .right-images-container {
-            height: 700px; /* 与3D图高度保持一致 */
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 10px; /* 控制两张图片之间的间距 */
+            height: auto; /* 移除固定高度 */
         }
+
         .right-images-container .card {
-            flex: 1;
-            margin-bottom: 20px;
+            width: 100%; /* 保持宽度不变 */
+            margin-bottom: 0; /* 移除底部边距，使用gap控制间距 */
+            border: 1px solid #dee2e6; /* 确保边框一致 */
+            border-radius: 0.375rem;
         }
-        .right-images-container .card:last-child {
-            margin-bottom: 0;
+
+        .right-images-container .card-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #dee2e6;
         }
+
+        .right-images-container .card-header h5 {
+            margin: 0;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
         .right-images-container .card-body {
+            padding: 10px; /* 适当的内边距 */
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            min-height: 200px; /* 设置最小高度，避免图片太小 */
         }
+
         .right-images-container img {
-            max-height: 100%;
-            width: auto;
+            max-width: 100%;
+            height: auto; /* 关键：让高度自适应 */
+            object-fit: contain; /* 保持图片比例 */
+        }
+
+        /* 可选：为不同图片设置不同的最小高度 */
+        .right-images-container .card:first-child .card-body {
+            min-height: 150px; /* 第一张图片稍大 */
+        }
+
+        .right-images-container .card:last-child .card-body {
+            min-height: 200px; /* 第二张图片稍小 */
+        }
+
+        /* 确保图片加载失败时有合适的占位符 */
+        .right-images-container img[src*="placeholder"] {
+            width: 80%;
+            height: 80%;
+            opacity: 0.5;
         }
         /* 添加多选提示样式 */
         .multi-select-hint {
@@ -1244,7 +1275,7 @@
                                 <td>${molecule.SMILES}</td>
                             </tr>
                             <tr>
-                                <th>Relative Binding Energy (eV)</th>
+                                <th>Relative binding energy (eV)</th>
                                 <td>${molecule['Relative binding energy (eV)']}</td>
                             </tr>
                             <tr>
@@ -1256,7 +1287,7 @@
                                 <td>${molecule['HOMO (eV)']}</td>
                             </tr>
                             <tr>
-                                <th>Dielectric Constant</th>
+                                <th>Dielectric constant</th>
                                 <td>${molecule['Dielectric constant']}</td>
                             </tr>
                             <tr>
