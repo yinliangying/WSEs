@@ -48,6 +48,77 @@ def create_placeholder_image():
     img_path = os.path.join('static', 'images', 'placeholder.png')
     img.save(img_path)
 
+
+# 创建首页的全屏 Splash 图片（如果用户没有提供）
+def create_splash_image(output_path, size=(1920, 1080)):
+    """Create a clean, journal-style landing image so the site is usable out of the box.
+    You can replace the generated file with your own image at the same path.
+    """
+    w, h = size
+    import random
+    random.seed(42)
+
+    # soft vertical gradient background
+    base = Image.new('RGBA', (w, h), (255, 255, 255, 255))
+    draw = ImageDraw.Draw(base)
+    top = (250, 250, 252)
+    bottom = (235, 242, 255)
+    for y in range(h):
+        t = y / max(h - 1, 1)
+        r = int(top[0] * (1 - t) + bottom[0] * t)
+        g = int(top[1] * (1 - t) + bottom[1] * t)
+        b = int(top[2] * (1 - t) + bottom[2] * t)
+        draw.line([(0, y), (w, y)], fill=(r, g, b, 255))
+
+    overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    odraw = ImageDraw.Draw(overlay)
+
+    # pastel palette (match the site's cluster colors, but more airy)
+    palette = [
+        (230, 153, 167, 160),  # #E699A7
+        (254, 221, 158, 150),  # #FEDD9E
+        (166, 217, 192, 150),  # #A6D9C0
+        (113, 167, 210, 150),  # #71A7D2
+    ]
+
+    # nodes
+    nodes = []
+    for _ in range(140):
+        x = random.randint(int(w * 0.08), int(w * 0.92))
+        y = random.randint(int(h * 0.10), int(h * 0.90))
+        r = random.randint(6, 18)
+        color = random.choice(palette)
+        odraw.ellipse((x - r, y - r, x + r, y + r), fill=color)
+        nodes.append((x, y))
+
+    # edges
+    for _ in range(170):
+        (x1, y1) = random.choice(nodes)
+        (x2, y2) = random.choice(nodes)
+        color = random.choice(palette)
+        # use a thinner, lighter line
+        odraw.line((x1, y1, x2, y2), fill=(color[0], color[1], color[2], 90), width=2)
+
+    composed = Image.alpha_composite(base, overlay).convert('RGB')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    composed.save(output_path)
+
+
+
+# Splash helpers: let you use splash.jpg / splash.jpeg / splash.png without editing templates
+def pick_splash_filename():
+    candidates = [
+        os.path.join('static', 'splash', 'splash.jpg'),
+        os.path.join('static', 'splash', 'splash.jpeg'),
+        os.path.join('static', 'splash', 'splash.png'),
+    ]
+    for abs_path in candidates:
+        if os.path.exists(abs_path):
+            # return path relative to /static so url_for('static', filename=...) works
+            return os.path.relpath(abs_path, 'static').replace('\\', '/')
+    # default expected name (will be generated if missing)
+    return 'splash/splash.jpg'
+
 # 提取SMILES的函数
 def extract_smiles_from_filename(filename):
     # 匹配下划线和点号之间的内容
@@ -246,7 +317,7 @@ def calculate_similarity(smiles1, smiles2):
 # 路由定义
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', splash_file=pick_splash_filename())
 
 @app.route('/data')
 def data_page():
@@ -415,6 +486,18 @@ if __name__ == '__main__':
     placeholder_path = os.path.join('static', 'images', 'placeholder.png')
     if not os.path.exists(placeholder_path):
         create_placeholder_image()
+
+    # 创建首页 Splash 图片（默认 static/splash/splash.jpg）。
+    # 你也可以直接放 splash.jpeg 或 splash.png，程序会自动识别并使用。
+    os.makedirs(os.path.join('static', 'splash'), exist_ok=True)
+    splash_candidates = [
+        os.path.join('static', 'splash', 'splash.jpg'),
+        os.path.join('static', 'splash', 'splash.jpeg'),
+        os.path.join('static', 'splash', 'splash.png'),
+    ]
+    if not any(os.path.exists(p) for p in splash_candidates):
+        # 如果用户没有提供封面图，就自动生成一张（保存为 JPG，浏览器兼容性最好）
+        create_splash_image(splash_candidates[0])
     
     # 确保数据已加载
     df = load_cluster_data()

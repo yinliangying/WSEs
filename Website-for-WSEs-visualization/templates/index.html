@@ -237,9 +237,112 @@
             z-index: 100;
             color: #666;
         }
+    
+        /* ---------- Splash (landing) screen ---------- */
+#splash-screen{
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* blurred full-bleed background using the same image */
+#splash-screen::before{
+    content:"";
+    position:absolute;
+    inset:-28px;
+    background-image: var(--splash-url);
+    background-size: cover;
+    background-position: center;
+    filter: blur(18px);
+    transform: scale(1.10);
+    opacity: 0.35;
+    pointer-events:none;
+}
+
+/* subtle white veil so background never fights the foreground */
+#splash-screen::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: rgba(255,255,255,0.35);
+    pointer-events:none;
+}
+
+/* Foreground splash image: ALWAYS fully visible (no cropping) */
+#splash-image{
+    position: relative;
+    z-index: 1;
+
+    width: auto;
+    height: auto;
+    max-width: 100vw;
+    max-height: 100vh;
+
+    object-fit: contain;
+    object-position: center;
+
+    transform: scale(1.01);
+    filter: blur(6px);
+    opacity: 0;
+    animation: splashZoomIn 1.1s ease-out forwards;
+}
+
+/* Optional: a bit of breathing room on very wide screens */
+@media (min-aspect-ratio: 16/9){
+    #splash-image{
+        max-width: 96vw;
+        max-height: 96vh;
+    }
+}
+
+#splash-screen .splash-hint{
+    position: absolute;
+    z-index: 2;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.72);
+    color: #222;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+    user-select: none;
+    backdrop-filter: blur(8px);
+}
+
+#splash-screen.fade-out{
+    animation: splashFadeOut 0.7s ease-in forwards;
+}
+@keyframes splashZoomIn{
+    to { transform: scale(1); filter: blur(0); opacity: 1; }
+}
+@keyframes splashFadeOut{
+    to { opacity: 0; }
+}
+/* -------------------------------------------- */
+
     </style>
 </head>
 <body>
+
+    <!-- Splash / landing screen -->
+    <div id="splash-screen"
+         title="Click to enter"
+         style="--splash-url: url('{{ url_for('static', filename=splash_file) }}');">
+        <img id="splash-image" src="{{ url_for('static', filename=splash_file) }}" alt="Landing image">
+        <div class="splash-hint">Click anywhere to enter</div>
+    </div>
+
+    <!-- Main app shell (hidden until splash is dismissed) -->
+    <div id="app-shell" style="display:none;">
+
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
@@ -421,7 +524,8 @@
         window.isProcessingClick = false;
         window.clickEventBound = false;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function initApp() {
+
             // 显示加载指示器
             document.getElementById('plot-loading').style.display = 'block';
             
@@ -1302,7 +1406,63 @@
                     </div>
                 `;
             }
-        });
+        
+}
+
+
+        // ---------- Splash gate ----------
+        function startWithSplash() {
+            const splash = document.getElementById('splash-screen');
+            const appShell = document.getElementById('app-shell');
+
+            // If splash elements are missing for any reason, just boot the app.
+            if (!splash || !appShell) {
+                initApp();
+                return;
+            }
+
+            // Optional: only show splash once per tab session
+            const alreadyEntered = sessionStorage.getItem('wse_entered') === '1';
+            const enter = () => {
+                // Guard against double clicks / key presses
+                if (splash.classList.contains('fade-out')) return;
+
+                sessionStorage.setItem('wse_entered', '1');
+                splash.classList.add('fade-out');
+
+                // Reveal app immediately, then let splash fade away
+                appShell.style.display = 'block';
+
+                // Initialize the Plotly app AFTER the shell is visible
+                initApp();
+
+                // Remove splash after animation completes
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 720);
+            };
+
+            if (alreadyEntered) {
+                splash.style.display = 'none';
+                appShell.style.display = 'block';
+                initApp();
+                return;
+            }
+
+            // Fresh visit: show splash first
+            splash.style.display = 'flex';
+            appShell.style.display = 'none';
+
+            splash.addEventListener('click', enter, { once: true });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') enter();
+            }, { once: true });
+        }
+
+        document.addEventListener('DOMContentLoaded', startWithSplash);
+        // --------------------------------
+
     </script>
+    </div>
 </body>
 </html>
