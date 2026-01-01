@@ -29,9 +29,7 @@ RDLogger.DisableLog('rdApp.error')
 # 初始化Flask应用
 app = Flask(__name__)
 
-# =========================
-# ✅ 路径统一改成“项目内相对路径”
-# =========================
+# 设置相对路径
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))                 # 项目根（app.py 所在目录）
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 IMAGE_DIR = os.path.join(STATIC_DIR, 'images')                        # ./static/images
@@ -42,22 +40,16 @@ DATA_DIR = os.path.join(BASE_DIR, 'data', 'Kmeans_4')                 # ./data/K
 os.makedirs(IMAGE_DIR, exist_ok=True)
 os.makedirs(SPLASH_DIR, exist_ok=True)
 
-# =========================
-# ✅ NEW: Image index cache
-#   Avoid parsing random filenames like plot_distribution.png as SMILES
-# =========================
 _IMAGE_INDEX = None  # canonical_smiles -> filename
-
 
 # 创建占位图片
 def create_placeholder_image():
-    # 创建简单的占位图片
+
     img = Image.new('RGB', (300, 300), color='#666666')
     draw = ImageDraw.Draw(img)
 
     try:
         font = ImageFont.load_default()
-        # 你原来 fill 也是 '#666666'（和底色一样），我保持不改以免“功能变化”
         draw.text((150, 150), "No Image Available", fill='#666666', anchor='mm', font=font)
     except:
         pass
@@ -68,9 +60,7 @@ def create_placeholder_image():
 
 # 创建首页的全屏 Splash 图片（如果用户没有提供）
 def create_splash_image(output_path, size=(1920, 1080)):
-    """Create a clean, journal-style landing image so the site is usable out of the box.
-    You can replace the generated file with your own image at the same path.
-    """
+    
     w, h = size
     import random
     random.seed(42)
@@ -122,6 +112,7 @@ def create_splash_image(output_path, size=(1920, 1080)):
 
 # Splash helpers: let you use splash.jpg / splash.jpeg / splash.png without editing templates
 def pick_splash_filename():
+
     candidates = [
         os.path.join(SPLASH_DIR, 'splash.jpg'),
         os.path.join(SPLASH_DIR, 'splash.jpeg'),
@@ -136,7 +127,7 @@ def pick_splash_filename():
 
 # 提取SMILES的函数
 def extract_smiles_from_filename(filename):
-    # 匹配下划线和点号之间的内容
+    # 匹配下划线和点号之间的内容，提取SMILES式
     match = re.search(r'_([^_]+)\.', filename)
     if match:
         return match.group(1)
@@ -145,6 +136,7 @@ def extract_smiles_from_filename(filename):
 
 # 标准化SMILES
 def standardize_smiles(smiles):
+
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol:
@@ -154,8 +146,9 @@ def standardize_smiles(smiles):
         return None
 
 
-# ✅ NEW: build a safe index of SMILES-bearing image filenames (skip non-SMILES like plot_distribution.png)
+# 构建图片索引，支持不同格式图片
 def build_image_index(image_dir_fs: str):
+
     idx = {}
     if not os.path.exists(image_dir_fs):
         return idx
@@ -180,8 +173,9 @@ def build_image_index(image_dir_fs: str):
     return idx
 
 
-# 获取图片路径（返回给前端的 URL；文件查找走本地路径）
+# 获取图片路径
 def get_image_path(smiles, image_dir):
+
     global _IMAGE_INDEX
 
     # 允许传入 IMAGE_DIR 或 './static/images/' 等，统一成绝对路径
@@ -190,7 +184,6 @@ def get_image_path(smiles, image_dir):
         image_dir_fs = os.path.join(BASE_DIR, image_dir_fs)
     image_dir_fs = os.path.abspath(image_dir_fs)
 
-    # ✅ build index once
     if _IMAGE_INDEX is None:
         _IMAGE_INDEX = build_image_index(image_dir_fs)
 
@@ -251,6 +244,7 @@ def load_cluster_data():
 
 # 生成示例数据（如果不存在）
 def generate_sample_data():
+
     data = {
         'SMILES': ['CCO', 'CC(=O)O', 'C1=CC=CC=C1', 'CNC', 'C1CCCCC1',
                   'C1=CC=C(C=C1)O', 'CCN(CC)CC', 'C1COCCO1', 'C1CCOC1', 'CC(C)CO'],
@@ -282,12 +276,12 @@ def generate_sample_data():
 
 # 创建3D散点图
 def create_3d_scatter(df):
-    # 科学期刊风格的配色方案 - 为四个聚类簇分配不同颜色
+    # 为四个聚类簇分配不同颜色
     colors = {
-        1: '#E699A7',  # 红色 - 聚类1
-        2: '#FEDD9E',  # 黄色 - 聚类2
-        3: '#A6D9C0',  # 绿色 - 聚类3
-        4: '#71A7D2'   # 蓝色 - 聚类4
+        1: '#E699A7',  # 红色 - cluster1
+        2: '#FEDD9E',  # 黄色 - cluster2
+        3: '#A6D9C0',  # 绿色 - cluster3
+        4: '#71A7D2'   # 蓝色 - cluster4
     }
 
     # 确定使用的坐标轴
@@ -340,7 +334,7 @@ def create_3d_scatter(df):
             ), axis=-1)
         ))
 
-    # 更新布局以适应科研风格
+    # 更新布局
     fig.update_layout(
         scene=dict(
             xaxis_title=x_col,
@@ -381,10 +375,12 @@ def mol_from_smiles_largest_fragment(smiles: str):
 
 
 def _morgan_fp(mol, radius: int, nbits: int = 2048):
+
     return AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=nbits)
 
-
+# 相似性搜索
 def hybrid_similarity(query_mol, target_mol):
+
     if query_mol is None or target_mol is None:
         return 0.0, {
             'tanimoto_r2': 0.0,
@@ -439,10 +435,11 @@ def data_page():
 def about_page():
     return render_template('about.html')
 
-
 # API端点：获取聚类数据
 @app.route('/api/cluster_data')
+
 def get_cluster_data():
+
     df = load_cluster_data()
     fig = create_3d_scatter(df)
 
@@ -475,11 +472,12 @@ def get_cluster_data():
 # API端点：搜索分子
 @app.route('/api/search', methods=['POST'])
 def search_molecules():
+
     data = request.json
     query = data.get('query', '')
     threshold = data.get('threshold', 0.7)
 
-    # 标准化查询SMILES，并取最大片段（更适合“骨架/环结构”检索）
+    # 标准化查询SMILES，并取最大片段
     standardized_query = standardize_smiles(query)
     query_mol = mol_from_smiles_largest_fragment(standardized_query) if standardized_query else None
 
@@ -607,7 +605,7 @@ if __name__ == '__main__':
     if not os.path.exists(placeholder_path):
         create_placeholder_image()
 
-    # 创建首页 Splash 图片（默认 static/splash/splash.jpg，也支持 jpeg/png）
+    # 创建首页 Splash 图片（默认 static/splash/splash.jpg，也支持jpeg/png）
     os.makedirs(SPLASH_DIR, exist_ok=True)
     splash_candidates = [
         os.path.join(SPLASH_DIR, 'splash.jpg'),
@@ -617,13 +615,11 @@ if __name__ == '__main__':
     if not any(os.path.exists(p) for p in splash_candidates):
         create_splash_image(splash_candidates[0])
 
-    # ✅ build image index once at startup (skip non-SMILES filenames)
     _IMAGE_INDEX = build_image_index(IMAGE_DIR)
 
     # 确保数据已加载
     df = load_cluster_data()
 
-    # ✅ 确保每个 smiles 至少有展示图（缺失则生成 hashed 图，并自动更新索引）
     for _, row in df.iterrows():
         smiles = row['SMILES']
         _ = get_image_path(smiles, IMAGE_DIR)

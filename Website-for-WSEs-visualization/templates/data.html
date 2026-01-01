@@ -488,7 +488,7 @@
                                         <div class="card descriptor-card">
                                             <div class="card-body text-center">
                                                 <h6><strong>\(E_{\textrm{S}}-E_{\textrm{A}}\)</strong></h6>
-                                                <p class="card-text">Binding energy difference</p>
+                                                <p class="card-text">Relative binding ability</p>
                                             </div>
                                         </div>
                                     </div>
@@ -496,7 +496,7 @@
                                         <div class="card descriptor-card">
                                             <div class="card-body text-center">
                                                 <h6><strong>LUMO</strong></h6>
-                                                <p class="card-text">Lowest unoccupied molecular orbital</p>
+                                                <p class="card-text">Reduction stability</p>
                                             </div>
                                         </div>
                                     </div>
@@ -504,7 +504,7 @@
                                         <div class="card descriptor-card">
                                             <div class="card-body text-center">
                                                 <h6><strong>HOMO</strong></h6>
-                                                <p class="card-text">Highest occupied molecular orbital</p>
+                                                <p class="card-text">Oxidation stability</p>
                                             </div>
                                         </div>
                                     </div>
@@ -651,7 +651,7 @@
                     // 更新属性统计
                     const stats = data.property_stats;
                     if (stats['Es-Ea (eV)']) {
-                        document.getElementById('be-min').textContent = (stats['Es-Ea (eV)'].min + 0.848).round(2);
+                        document.getElementById('be-min').textContent = stats['Es-Ea (eV)'].min.round(2);
                         document.getElementById('be-max').textContent = stats['Es-Ea (eV)'].max.round(2);
                         document.getElementById('be-mean').textContent = stats['Es-Ea (eV)'].mean.round(2);
                         document.getElementById('be-std').textContent = stats['Es-Ea (eV)'].std.round(2);
