@@ -355,13 +355,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/">Home</a>
+                        <a class="nav-link active" href="/wse">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/data">Data explorer</a>
+                        <a class="nav-link" href="/wse/data">Data explorer</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
+                        <a class="nav-link" href="/wse/about">About</a>
                     </li>
                 </ul>
                                      <!-- 添加返回按钮 -->
@@ -541,7 +541,7 @@
             document.getElementById('plot-loading').style.display = 'block';
             
             // 获取聚类数据
-            fetch('/api/cluster_data')
+            fetch('/wse/api/cluster_data')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -1144,7 +1144,7 @@
                 // 显示加载指示器
                 document.getElementById('plot-loading').style.display = 'block';
                 
-                fetch('/api/search', {
+                fetch('/wse/api/search', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1331,7 +1331,7 @@
             
             // 下载数据函数
             function downloadData(selectedSmiles, cluster) {
-                fetch('/api/download', {
+                fetch('/wse/api/download', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

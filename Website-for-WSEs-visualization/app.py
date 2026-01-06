@@ -10,12 +10,14 @@ from flask import Flask, render_template, request, jsonify, send_file
 from rdkit import Chem, DataStructs, RDLogger
 from rdkit.Chem import Draw, AllChem
 from PIL import Image, ImageDraw, ImageFont
+from flask import Flask, Blueprint, render_template
 
+# 创建蓝图
+wse_bp = Blueprint('wse', __name__)
 
 RDLogger.DisableLog('rdApp.error')
 
-# 初始化Flask应用
-app = Flask(__name__)
+
 
 # 设置相对路径
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))                 # 项目根（app.py 所在目录）
@@ -411,20 +413,20 @@ def hybrid_similarity(query_mol, target_mol):
 
 
 # 路由定义
-@app.route('/')
+@wse_bp.route('/')#@app.route('/')
 def index():
     return render_template('index.html', splash_file=pick_splash_filename())
 
-@app.route('/data')
+@wse_bp.route('/data')
 def data_page():
     return render_template('data.html')
 
-@app.route('/about')
+@wse_bp.route('/about')
 def about_page():
     return render_template('about.html')
 
 # API端点：获取聚类数据
-@app.route('/api/cluster_data')
+@wse_bp.route('/api/cluster_data')
 
 def get_cluster_data():
 
@@ -458,7 +460,7 @@ def get_cluster_data():
 
 
 # API端点：搜索分子
-@app.route('/api/search', methods=['POST'])
+@wse_bp.route('/api/search', methods=['POST'])
 def search_molecules():
 
     data = request.json
@@ -510,7 +512,7 @@ def search_molecules():
 
 
 # API端点：获取集群统计信息
-@app.route('/api/cluster_stats')
+@wse_bp.route('/api/cluster_stats')
 def get_cluster_stats():
     df = load_cluster_data()
 
@@ -552,7 +554,7 @@ def get_cluster_stats():
 
 
 # API端点：下载数据
-@app.route('/api/download', methods=['POST'])
+@wse_bp.route('/api/download', methods=['POST'])
 def download_data():
     data = request.json
     selected_smiles = data.get('smiles', [])
@@ -584,6 +586,18 @@ def download_data():
         as_attachment=True,
         download_name=filename
     )
+
+# 初始化Flask应用
+app = Flask(__name__)
+
+# 注册蓝图
+app.register_blueprint(wse_bp, url_prefix='/wse')
+
+# 添加根路径重定向
+@app.route('/')
+def root():
+    from flask import redirect
+    return redirect('/wse')
 
 
 # 运行应用
