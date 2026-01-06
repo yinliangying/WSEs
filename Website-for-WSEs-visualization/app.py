@@ -593,12 +593,6 @@ app = Flask(__name__)
 # 注册蓝图
 app.register_blueprint(wse_bp, url_prefix='/wse')
 
-# # 添加根路径重定向
-# @app.route('/')
-# def root():
-#     from flask import redirect
-#     return redirect('/wse')
-
 
 # 运行应用
 if __name__ == '__main__':
