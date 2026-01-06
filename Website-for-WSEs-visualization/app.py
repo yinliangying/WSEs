@@ -16,7 +16,6 @@ RDLogger.DisableLog('rdApp.error')
 
 # 初始化Flask应用
 app = Flask(__name__)
-app.config['APPLICATION_ROOT'] = '/wse'
 
 # 设置相对路径
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))                 # 项目根（app.py 所在目录）
