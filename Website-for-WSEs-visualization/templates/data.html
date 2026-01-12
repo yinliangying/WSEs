@@ -641,7 +641,7 @@
             document.getElementById('download-cluster-4').addEventListener('click', showDownloadAlert);
 
             // 从后端获取统计数据
-            fetch('/api/cluster_stats')
+            fetch('api/cluster_stats')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
