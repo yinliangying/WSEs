@@ -1373,14 +1373,14 @@
                 const container = document.getElementById('molecule-details');
                 
                 // 安全地处理图片URL
-                let imageUrl = molecule.Image || '/static/images/placeholder.png';
+                let imageUrl = molecule.Image || '/wse/static/images/placeholder.png';
                 if (!imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
-                    imageUrl = '/static/images/' + imageUrl;
+                    imageUrl = '/wse/static/images/' + imageUrl;
                 }
                 
                 container.innerHTML = `
                     <div class="col-md-4 text-center">
-                        <img src="${imageUrl}" class="molecule-image" alt="Molecule structure" onerror="this.src='/static/images/placeholder.png'">
+                        <img src="${imageUrl}" class="molecule-image" alt="Molecule structure" onerror="this.src='/wse/static/images/placeholder.png'">
                     </div>
                     <div class="col-md-8">
                         <h4 class="text-center">Molecular Properties</h4>
