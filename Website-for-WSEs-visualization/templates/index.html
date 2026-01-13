@@ -238,18 +238,18 @@
             color: #666;
         }
     
-<!--        /* &#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; Splash (landing) screen &#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45; */-->
-<!--#splash-screen{-->
-<!--    position: fixed;-->
-<!--    inset: 0;-->
-<!--    z-index: 9999;-->
-<!--    display: flex;-->
-<!--    align-items: center;-->
-<!--    justify-content: center;-->
-<!--    cursor: pointer;-->
-<!--    background: #ffffff;-->
-<!--    overflow: hidden;-->
-<!--}-->
+        /* ---------- Splash (landing) screen ---------- */
+#splash-screen{
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #ffffff;
+    overflow: hidden;
+}
 
 /* blurred full-bleed background using the same image */
 #splash-screen::before{
@@ -332,16 +332,16 @@
 </head>
 <body>
 
-<!--    &lt;!&ndash; Splash / landing screen &ndash;&gt;-->
-<!--    <div id="splash-screen"-->
-<!--         title="Click to enter"-->
-<!--         style="&#45;&#45;splash-url: url('{{ url_for('static', filename=splash_file) }}');">-->
-<!--        <img id="splash-image" src="{{ url_for('static', filename=splash_file) }}" alt="Landing image">-->
-<!--        <div class="splash-hint">Click anywhere to enter</div>-->
-<!--    </div>-->
+    <!-- Splash / landing screen -->
+    <div id="splash-screen"
+         title="Click to enter"
+         style="--splash-url: url('{{ url_for('static', filename=splash_file) }}');">
+        <img id="splash-image" src="{{ url_for('static', filename=splash_file) }}" alt="Landing image">
+        <div class="splash-hint">Click anywhere to enter</div>
+    </div>
 
     <!-- Main app shell (hidden until splash is dismissed) -->
-<!--    <div id="app-shell" style="display:none;">-->
+    <div id="app-shell" style="display:none;">
 
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark">
@@ -1423,7 +1423,6 @@
 
         // ---------- Splash gate ----------
         function startWithSplash() {
-            initApp();
             const splash = document.getElementById('splash-screen');
             const appShell = document.getElementById('app-shell');
 
@@ -1471,7 +1470,7 @@
             }, { once: true });
         }
 
-        document.addEventListener('DOMContentLoaded', initApp);
+        document.addEventListener('DOMContentLoaded', startWithSplash);
         // --------------------------------
 
     </script>
