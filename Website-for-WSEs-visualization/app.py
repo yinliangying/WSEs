@@ -177,7 +177,7 @@ def get_image_path(smiles, image_dir):
 
     std_smiles = standardize_smiles(smiles)
     if std_smiles and std_smiles in _IMAGE_INDEX:
-        return f"/static/images/{_IMAGE_INDEX[std_smiles]}"
+        return f"/wse/static/images/{_IMAGE_INDEX[std_smiles]}"
 
     # 如果没有找到匹配的图片，使用哈希值作为备用方案（写到 ./static/images）
     img_filename = f"{abs(hash(smiles))}.png"
@@ -197,9 +197,9 @@ def get_image_path(smiles, image_dir):
                     _IMAGE_INDEX = {}
                 _IMAGE_INDEX[std_smiles2] = img_filename
         else:
-            return '/static/images/placeholder.png'
+            return '/wse/static/images/placeholder.png'
 
-    return f'/static/images/{img_filename}'
+    return f'/wse/static/images/{img_filename}'
 
 
 # 加载四个聚类簇的数据
