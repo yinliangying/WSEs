@@ -98,6 +98,7 @@ def create_splash_image(output_path, size=(1920, 1080)):
     composed.save(output_path)
 
 
+### 20260114 yinshiqiu  不用这个变量而是直接写死 splash.jpeg在 image中
 # Splash helpers: let you use splash.jpg / splash.jpeg / splash.png without editing templates
 def pick_splash_filename():
 
