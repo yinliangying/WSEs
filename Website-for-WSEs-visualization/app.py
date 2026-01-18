@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import plotly
 import plotly.graph_objects as go
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file,send_from_directory
 from rdkit import Chem, DataStructs, RDLogger
 from rdkit.Chem import Draw, AllChem
 from PIL import Image, ImageDraw, ImageFont
@@ -416,6 +416,15 @@ def hybrid_similarity(query_mol, target_mol):
 @app.route('/')
 def index():
     return render_template('index.html', splash_file=pick_splash_filename())
+
+# 添加 favicon 路由
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        app.static_folder,
+        'image/favicon.ico',
+        mimetype='image/vnd.microsoft.icon'
+    )
 
 @app.route('/data')
 def data_page():
